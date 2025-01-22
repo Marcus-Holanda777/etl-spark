@@ -25,3 +25,10 @@ Este repositório contém um projeto para provisionamento de infraestrutura util
 - **Papel Personalizado (Custom Role)**: Criado para gerenciar permissões de execução do Workflow Template.
   - Permissões: `dataproc.workflowTemplates.instantiate` e `iam.serviceAccounts.actAs`.
 - **Vínculo IAM**: Associa a conta de serviço criada ao papel personalizado.
+
+
+## Referências
+--
+
+- [Fluxo de trabalho usando o Cloud Scheduler](https://cloud.google.com/dataproc/docs/tutorials/workflow-scheduler?hl=pt-br)
+- [Terraform Workflow](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dataproc_workflow_template)
