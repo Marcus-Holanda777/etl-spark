@@ -28,7 +28,6 @@ Este repositório contém um projeto para provisionamento de infraestrutura util
 
 
 ## Referências
---
 
 - [Fluxo de trabalho usando o Cloud Scheduler](https://cloud.google.com/dataproc/docs/tutorials/workflow-scheduler?hl=pt-br)
 - [Terraform Workflow](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dataproc_workflow_template)
