@@ -135,7 +135,7 @@ def view_produto(
     config: dict[str, str]
 ) -> DataFrame:
     
-    file = config.get('produto.parquet')
+    file = config.get('produto')
     
     return (
         spark.read.parquet(file)
