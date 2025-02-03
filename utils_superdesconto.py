@@ -1,9 +1,5 @@
 from pyspark.sql.functions import col
-from pyspark.sql import (
-    DataFrame, 
-    Column,
-    SparkSession
-)
+from pyspark.sql import DataFrame, Column, SparkSession
 from pyspark.sql.window import Window
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
@@ -11,10 +7,13 @@ from datetime import datetime, timedelta
 
 
 cols_rename = [
-    "filial", "cod_prod", 
-    "periodo", "etiqueta", 
-    "perc_dsc_cupom", "venda", 
-    "venda_desconto"
+    "filial",
+    "cod_prod",
+    "periodo",
+    "etiqueta",
+    "perc_dsc_cupom",
+    "venda",
+    "venda_desconto",
 ]
 
 cols_cosmos = [
@@ -44,7 +43,7 @@ cols_autorizador = [
     "ulch_fl_tipo_produto",
     "ulch_cd_barras",
     "ulch_fl_situacao",
-    "ulch_sq_produto"
+    "ulch_sq_produto",
 ]
 
 cols_produto = [
@@ -52,7 +51,7 @@ cols_produto = [
     "xxxx_dh_cad",
     "ulch_lote",
     "ulch_dt_vencimento",
-    "ulch_sq_produto"
+    "ulch_sq_produto",
 ]
 
 
@@ -60,27 +59,21 @@ def etiqueta(colname: str) -> Column:
     return F.lpad(F.trim(colname), 30, "0").cast(T.StringType())
 
 
-def list_files(
-    path: str, 
-    start: datetime, 
-    end: datetime,
-    config: dict[str, str]
-):
+def list_files(path: str, start: datetime, end: datetime, config: dict[str, str]):
     days = (end - start).days + 1
     for day in range(days):
         dt = start + timedelta(day)
         yield f"{config.get('bucket_uc')}/{path}/{dt:%Y/%m/%d}.parquet"
-     
+
 
 def view_pre_venda(
     spark: SparkSession,
-    path: str, 
-    start: datetime, 
-    end: datetime, 
+    path: str,
+    start: datetime,
+    end: datetime,
     columns: list[str],
-    config: dict[str, str]
+    config: dict[str, str],
 ) -> DataFrame:
-    
     col_etiqueta = columns[3]
     files_path = list(list_files(path, start, end, config))
 
@@ -93,16 +86,9 @@ def view_pre_venda(
 
 
 def view_cupom(
-    spark: SparkSession, 
-    start: datetime, 
-    end: datetime,
-    config: dict[str, str]
+    spark: SparkSession, start: datetime, end: datetime, config: dict[str, str]
 ) -> DataFrame:
-    
-    windows = (
-        Window.partitionBy("etiqueta")
-         .orderBy(col("venda_desconto").desc())
-    )
+    windows = Window.partitionBy("etiqueta").orderBy(col("venda_desconto").desc())
 
     return (
         view_pre_venda(spark, "COSMOSMOV", start, end, cols_cosmos, config)
@@ -113,30 +99,24 @@ def view_cupom(
     )
 
 
-def view_autorizador(
-    spark: SparkSession, 
-    config: dict[str, str]
-) -> DataFrame:
-    
-    file = config.get('autorizacao')
-    
+def view_autorizador(spark: SparkSession, config: dict[str, str]) -> DataFrame:
+    file = config.get("autorizacao")
+
     return (
         spark.read.parquet(file)
         .select(cols_autorizador)
         .filter(col("ulch_fl_situacao") == "F")
         .withColumn("ulch_cd_barras", etiqueta("ulch_cd_barras"))
-        .withColumn("ulch_percentual_desconto", F.coalesce("ulch_percentual_desconto", F.lit(0)))
+        .withColumn(
+            "ulch_percentual_desconto", F.coalesce("ulch_percentual_desconto", F.lit(0))
+        )
         .dropDuplicates(["ulch_cd_barras"])
     )
 
 
-def view_produto(
-    spark: SparkSession,
-    config: dict[str, str]
-) -> DataFrame:
-    
-    file = config.get('produto')
-    
+def view_produto(spark: SparkSession, config: dict[str, str]) -> DataFrame:
+    file = config.get("produto")
+
     return (
         spark.read.parquet(file)
         .select(cols_produto)
