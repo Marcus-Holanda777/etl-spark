@@ -95,7 +95,7 @@ def main_executor(
             # adiciona mais uma etapa ao pyspark
             df_ressarc = cast_decimal_double(view_ressarc).toPandas()
 
-            if not df_ressarc.empty():
+            if not df_ressarc.empty:
                 print(f"Rows df: {df_ressarc.shape}")
                 cliente.write_dataframe(
                     df_ressarc,
