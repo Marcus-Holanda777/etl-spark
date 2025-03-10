@@ -106,7 +106,7 @@ def main_executor(
                         table_name=table_athena_ressarcimento,
                         location=f"{location_tables}tables/{table_athena_ressarcimento}/",
                         schema=schema_athena,
-                        if_exists='replace' if ano == 2023 else 'append'
+                        if_exists="replace" if ano == 2023 else "append",
                     )
 
                     print(f"Inserido: {ano}")
