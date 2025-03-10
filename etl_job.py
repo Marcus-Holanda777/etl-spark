@@ -90,21 +90,28 @@ def main_executor(
 
         if 1 <= day_ressarc <= 5:
             print("Base ressarcimento !")
-            view_ressarc = main_view_ressarcimento(spark, end.year, config)
+            # fazer o etl de 2023 ate o ano atual
 
-            # adiciona mais uma etapa ao pyspark
-            df_ressarc = cast_decimal_double(view_ressarc).toPandas()
+            for ano in range(2023, end.year + 1):
+                print(f"Periodo: {ano}")
+                view_ressarc = main_view_ressarcimento(spark, ano, config)
 
-            if not df_ressarc.empty:
-                print(f"Rows df: {df_ressarc.shape}")
-                cliente.write_dataframe(
-                    df_ressarc,
-                    table_name=table_athena_ressarcimento,
-                    location=f"{location_tables}tables/{table_athena_ressarcimento}/",
-                    schema=schema_athena,
-                )
-            else:
-                print("DF, vazio !")
+                # adiciona mais uma etapa ao pyspark
+                df_ressarc = cast_decimal_double(view_ressarc).toPandas()
+
+                if not df_ressarc.empty:
+                    print(f"Rows df: {df_ressarc.shape}")
+                    cliente.write_table_iceberg(
+                        df_ressarc,
+                        table_name=table_athena_ressarcimento,
+                        location=f"{location_tables}tables/{table_athena_ressarcimento}/",
+                        schema=schema_athena,
+                        if_exists='replace' if ano == 2023 else 'append'
+                    )
+
+                    print(f"Inserido: {ano}")
+                else:
+                    print("DF, vazio !")
 
 
 if __name__ == "__main__":

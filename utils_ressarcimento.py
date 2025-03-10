@@ -257,9 +257,13 @@ def main_view_ressarcimento(
         cols_view.join(creds_group, "cnpj_forn_pai")
         .withColumn("ressarcimento", total_ressarcimento)
         .unionByName(
-            creds_view.join(creds_group, "cnpj_forn_pai", "leftanti").withColumn(
+            creds_view.join(cols_view, "cnpj_forn_pai", "leftanti").withColumn(
                 "ressarcimento", col("credito")
             ),
+            allowMissingColumns=True,
+        )
+        .unionByName(
+            cols_view.join(creds_group, "cnpj_forn_pai", "leftanti"),
             allowMissingColumns=True,
         )
         .drop("credito", "grupo_perda")
